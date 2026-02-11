@@ -2,8 +2,9 @@
 Flask==3.0.0
 flask-cors==4.0.0
 
-# PDF processing
-PyMuPDF==1.23.8
+# PDF processing - use pymupdf which now includes pre-built wheels
+# Note: Requires Python 3.8+ and provides wheels for Linux/Mac/Windows
+pymupdf>=1.24.0
 
 # HTTP requests for downloading FAA PDFs
 requests==2.31.0
