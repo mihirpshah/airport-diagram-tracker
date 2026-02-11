@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Environment variables (contains secrets!)
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (PDFs and extractions are generated, not committed)
+data/*.pdf
+data/*_extracted.json
+data/*_comparison*.json
+
+# Keep the test data file though
+!data/SYR_2601_TEST_extracted.json
+
+# Logs
+*.log
+
+# Temp files
+temp_*.json

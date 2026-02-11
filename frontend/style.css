@@ -1,0 +1,395 @@
+/* =============================================================================
+   Airport Diagram Change Tracker - Styles
+   ============================================================================= */
+
+:root {
+    --primary-color: #2563eb;
+    --success-color: #16a34a;
+    --danger-color: #dc2626;
+    --warning-color: #d97706;
+    --background-color: #f8fafc;
+    --panel-background: #ffffff;
+    --text-color: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+header p {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+/* Main content */
+main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.panel {
+    background: var(--panel-background);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.panel h2 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* =============================================================================
+   Airport Selector
+   ============================================================================= */
+
+#airport-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.airport-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--primary-color);
+    background: white;
+    color: var(--primary-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.airport-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.airport-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.airport-btn.loading {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+#cycle-info {
+    display: flex;
+    gap: 2rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    align-items: center;
+}
+
+/* Test Button */
+.test-btn {
+    padding: 0.35rem 0.75rem;
+    border: 2px solid var(--warning-color);
+    background: white;
+    color: var(--warning-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    margin-left: auto;
+}
+
+.test-btn:hover {
+    background: var(--warning-color);
+    color: white;
+}
+
+.test-btn.active {
+    background: var(--warning-color);
+    color: white;
+}
+
+/* Test Mode Banner */
+.test-mode-banner {
+    background: var(--warning-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 0.75rem;
+}
+
+.test-description {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+
+/* =============================================================================
+   Content Area - Side by side layout
+   ============================================================================= */
+
+#content-area {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1rem;
+}
+
+#change-report {
+    max-height: 700px;
+    overflow-y: auto;
+}
+
+#pdf-comparison {
+    min-height: 500px;
+}
+
+@media (max-width: 1000px) {
+    #content-area {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =============================================================================
+   Change Report
+   ============================================================================= */
+
+#report-summary {
+    background: var(--background-color);
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+#report-summary h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.summary-stats {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.stat {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.stat.info {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.stat.added {
+    background: #dcfce7;
+    color: var(--success-color);
+}
+
+.stat.removed {
+    background: #fee2e2;
+    color: var(--danger-color);
+}
+
+.stat.renamed {
+    background: #fef3c7;
+    color: var(--warning-color);
+}
+
+.stat.runway {
+    background: #fef3c7;
+    color: var(--warning-color);
+}
+
+/* Change items */
+.change-item {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    border-left: 4px solid;
+    font-size: 0.9rem;
+}
+
+.change-item.ADDED {
+    background: #f0fdf4;
+    border-left-color: var(--success-color);
+}
+
+.change-item.REMOVED {
+    background: #fef2f2;
+    border-left-color: var(--danger-color);
+}
+
+.change-item.RENAMED {
+    background: #fffbeb;
+    border-left-color: var(--warning-color);
+}
+
+.change-item.GEOMETRY {
+    background: #f0f9ff;
+    border-left-color: var(--primary-color);
+}
+
+.change-item.LENGTH_CHANGED,
+.change-item.WIDTH_CHANGED {
+    background: #fef3c7;
+    border-left-color: var(--warning-color);
+}
+
+.change-item.RUNWAY_ADDED {
+    background: #f0fdf4;
+    border-left-color: var(--success-color);
+}
+
+.change-item.RUNWAY_REMOVED {
+    background: #fef2f2;
+    border-left-color: var(--danger-color);
+}
+
+.change-type {
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-right: 0.5rem;
+}
+
+.no-changes {
+    text-align: center;
+    padding: 2rem;
+    color: var(--success-color);
+}
+
+.no-changes::before {
+    content: "✓";
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.no-changes .note {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+/* =============================================================================
+   PDF Comparison
+   ============================================================================= */
+
+#pdf-container {
+    display: flex;
+    gap: 1rem;
+}
+
+.pdf-viewer {
+    flex: 1;
+    text-align: center;
+}
+
+.pdf-viewer h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+.pdf-info {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.pdf-info.has-changes {
+    color: var(--warning-color);
+    font-weight: 500;
+}
+
+.pdf-wrapper {
+    background: #f1f5f9;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.pdf-viewer canvas {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
+/* =============================================================================
+   Footer
+   ============================================================================= */
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+footer a {
+    color: var(--primary-color);
+}
+
+footer p {
+    margin: 0.25rem 0;
+}
+
+/* =============================================================================
+   Loading States
+   ============================================================================= */
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.error-message {
+    background: #fef2f2;
+    color: var(--danger-color);
+    padding: 0.75rem;
+    border-radius: 4px;
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airport Diagram Change Tracker</title>
+
+    <!-- PDF.js for displaying PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <!-- Our custom styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Airport Diagram Change Tracker</h1>
+        <p>Compare FAA airport diagrams between AIRAC cycles - detects taxiway additions, removals, and renames</p>
+    </header>
+
+    <main>
+        <!-- Airport Selection Panel -->
+        <section id="airport-selector" class="panel">
+            <h2>Select Airport</h2>
+            <div id="airport-buttons">
+                <p>Loading airports...</p>
+            </div>
+            <div id="cycle-info">
+                <span>Current Cycle: <strong id="current-cycle">--</strong></span>
+                <span>Previous Cycle: <strong id="previous-cycle">--</strong></span>
+                <button id="test-btn" class="test-btn" onclick="loadTestComparison()" title="Load synthetic test data to verify change detection">TEST</button>
+            </div>
+        </section>
+
+        <!-- Main content area -->
+        <div id="content-area">
+
+            <!-- Change Report (Text) -->
+            <section id="change-report" class="panel">
+                <h2>Change Report</h2>
+                <div id="report-summary">
+                    <p>Select an airport to view changes</p>
+                </div>
+                <div id="report-details">
+                    <!-- Change list will appear here -->
+                </div>
+            </section>
+
+            <!-- Side-by-Side PDF Comparison -->
+            <section id="pdf-comparison" class="panel">
+                <h2>Side-by-Side Comparison</h2>
+                <div id="pdf-container">
+                    <div class="pdf-viewer">
+                        <h3>Last Changed: <span id="pdf-last-change-cycle">--</span></h3>
+                        <div class="pdf-wrapper">
+                            <canvas id="pdf-canvas-last-change"></canvas>
+                        </div>
+                        <p id="last-change-info" class="pdf-info"></p>
+                    </div>
+                    <div class="pdf-viewer">
+                        <h3>Previous Cycle: <span id="pdf-old-cycle">--</span></h3>
+                        <div class="pdf-wrapper">
+                            <canvas id="pdf-canvas-old"></canvas>
+                        </div>
+                    </div>
+                    <div class="pdf-viewer">
+                        <h3>Current Cycle: <span id="pdf-new-cycle">--</span></h3>
+                        <div class="pdf-wrapper">
+                            <canvas id="pdf-canvas-new"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer>
+        <p>Data source: <a href="https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dtpp/" target="_blank">FAA Digital Terminal Procedures</a></p>
+        <p>Compares taxiway designator labels between 28-day AIRAC cycles</p>
+    </footer>
+
+    <!-- Our application code -->
+    <script src="app.js"></script>
+</body>
+</html>

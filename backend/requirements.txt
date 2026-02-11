@@ -1,0 +1,7 @@
+# Airport Diagram Change Tracker - Python Dependencies
+
+pdfplumber>=0.10.0    # Extract text and positions from PDFs
+PyMuPDF>=1.23.0       # Extract vector graphics from PDFs (imported as 'fitz')
+flask>=3.0.0          # Web server for the API
+flask-cors>=4.0.0     # Allow frontend to call backend API
+requests>=2.31.0      # Download PDFs from FAA website

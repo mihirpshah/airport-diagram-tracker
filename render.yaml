@@ -1,0 +1,41 @@
+# Render Blueprint - defines the services for this application
+# See: https://render.com/docs/blueprint-spec
+
+services:
+  # Main web service
+  - type: web
+    name: airport-diagram-tracker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn backend.app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      # Email configuration (set these in Render dashboard for security)
+      - key: GMAIL_ADDRESS
+        sync: false  # Must be set manually in dashboard
+      - key: GMAIL_APP_PASSWORD
+        sync: false  # Must be set manually in dashboard
+      - key: ALERT_RECIPIENT_EMAIL
+        sync: false  # Must be set manually in dashboard
+    disk:
+      name: airport-data
+      mountPath: /data
+      sizeGB: 1
+
+  # Cron job to check for changes daily
+  - type: cron
+    name: airport-change-checker
+    runtime: python
+    schedule: "0 12 * * *"  # Run daily at 12:00 UTC (8am EST)
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m backend.scheduled_check
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: GMAIL_ADDRESS
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: ALERT_RECIPIENT_EMAIL
+        sync: false
