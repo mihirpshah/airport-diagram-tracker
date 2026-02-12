@@ -164,9 +164,13 @@ def compare_airport(airport_code):
     current_cycle = get_current_cycle()
     previous_cycle = get_previous_cycle(current_cycle)
 
+    print(f"Comparing {airport_code}: {previous_cycle} -> {current_cycle}")
+    print(f"DATA_DIR: {DATA_DIR}")
+
     # Check for existing comparison file first
     comparison_file = DATA_DIR / f"{airport_code}_comparison_{previous_cycle}_to_{current_cycle}.json"
     if comparison_file.exists():
+        print(f"Using cached comparison: {comparison_file}")
         with open(comparison_file, 'r') as f:
             return jsonify(json.load(f))
 
@@ -178,23 +182,43 @@ def compare_airport(airport_code):
     current_pdf = DATA_DIR / f"{airport_code}_{current_cycle}.pdf"
     previous_pdf = DATA_DIR / f"{airport_code}_{previous_cycle}.pdf"
 
+    print(f"Current PDF exists: {current_pdf.exists()} - {current_pdf}")
+    print(f"Previous PDF exists: {previous_pdf.exists()} - {previous_pdf}")
+
     if not current_pdf.exists() or not previous_pdf.exists():
+        print(f"Downloading PDFs for {airport_code}...")
         download_airport_pair(airport_code)
+        print(f"After download - Current: {current_pdf.exists()}, Previous: {previous_pdf.exists()}")
 
     # Extract if needed
     if not current_extract.exists():
         if current_pdf.exists():
+            print(f"Extracting {current_pdf}...")
             data = extract_from_pdf(str(current_pdf))
             if data:
-                save_extraction(data)
+                save_extraction(data, str(current_extract))
+                print(f"Saved extraction to {current_extract}")
+            else:
+                print(f"Extraction returned None for {current_pdf}")
+        else:
+            print(f"Cannot extract - PDF not found: {current_pdf}")
 
     if not previous_extract.exists():
         if previous_pdf.exists():
+            print(f"Extracting {previous_pdf}...")
             data = extract_from_pdf(str(previous_pdf))
             if data:
-                save_extraction(data)
+                save_extraction(data, str(previous_extract))
+                print(f"Saved extraction to {previous_extract}")
+            else:
+                print(f"Extraction returned None for {previous_pdf}")
+        else:
+            print(f"Cannot extract - PDF not found: {previous_pdf}")
 
     # Now compare
+    print(f"Current extract exists: {current_extract.exists()}")
+    print(f"Previous extract exists: {previous_extract.exists()}")
+
     if current_extract.exists() and previous_extract.exists():
         result = compare_from_files(str(previous_extract), str(current_extract))
         save_comparison(result)
@@ -319,8 +343,37 @@ def test_comparison():
 
 @app.route('/pdf/<filename>')
 def serve_pdf(filename):
-    """Serve PDF files from the data directory."""
-    return send_from_directory(DATA_DIR, filename)
+    """
+    Serve PDF files from the data directory.
+    Downloads from FAA on-demand if not present.
+
+    Expected filename format: AIRPORT_CYCLE.pdf (e.g., SYR_2602.pdf)
+    """
+    pdf_path = DATA_DIR / filename
+
+    # If file doesn't exist, try to download it
+    if not pdf_path.exists():
+        # Parse airport code and cycle from filename
+        # Format: AIRPORT_CYCLE.pdf
+        try:
+            name_part = filename.replace('.pdf', '').replace('.PDF', '')
+            parts = name_part.split('_')
+            if len(parts) >= 2:
+                airport_code = parts[0].upper()
+                cycle = parts[1]
+
+                # Only download if it's a known airport
+                if airport_code in AIRPORTS:
+                    print(f"Downloading {airport_code} cycle {cycle} on demand...")
+                    download_diagram(airport_code, cycle)
+        except Exception as e:
+            print(f"Error parsing/downloading PDF {filename}: {e}")
+
+    # Try to serve the file
+    if pdf_path.exists():
+        return send_from_directory(DATA_DIR, filename)
+    else:
+        return jsonify({'error': f'PDF not found: {filename}'}), 404
 
 
 @app.route('/')
