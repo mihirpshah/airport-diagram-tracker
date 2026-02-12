@@ -28,8 +28,9 @@ AIRPORTS = {
 # Base URL for FAA digital terminal procedures
 FAA_BASE_URL = "https://aeronav.faa.gov/d-tpp"
 
-# Where to save downloaded PDFs (relative to this script)
-DATA_DIR = Path(__file__).parent.parent / "data"
+# Where to save downloaded PDFs
+# Use DATA_DIR environment variable if set (for production), otherwise use local data dir
+DATA_DIR = Path(os.environ.get('DATA_DIR', Path(__file__).parent.parent / "data"))
 
 
 def get_current_cycle():
