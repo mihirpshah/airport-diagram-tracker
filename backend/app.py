@@ -260,17 +260,40 @@ def test_comparison():
     - Taxiway Z removed
     - Runway 10/28 extended by 299 ft
     """
+    # The test_old file is shipped with the repo (synthetic data)
+    # Look in both DATA_DIR and the repo's data directory
+    repo_data_dir = Path(__file__).parent.parent / "data"
+
     test_old = DATA_DIR / "SYR_2601_TEST_extracted.json"
+    if not test_old.exists():
+        test_old = repo_data_dir / "SYR_2601_TEST_extracted.json"
+
     test_new = DATA_DIR / "SYR_2602_extracted.json"
 
     if not test_old.exists():
         return jsonify({
-            'error': 'Test data not found. Run the test data generator first.',
-            'instructions': 'See backend/README for creating test data.'
+            'error': 'Test data not found. The SYR_2601_TEST_extracted.json file is missing.',
+            'instructions': 'This file should be included in the repository.'
         }), 404
 
+    # Download and extract SYR_2602 if needed (on-demand)
     if not test_new.exists():
-        return jsonify({'error': 'SYR_2602 extraction not found.'}), 404
+        current_cycle = get_current_cycle()
+        syr_pdf = DATA_DIR / f"SYR_{current_cycle}.pdf"
+
+        # Download the current SYR diagram
+        if not syr_pdf.exists():
+            download_diagram("SYR", current_cycle)
+
+        # Extract it
+        if syr_pdf.exists():
+            data = extract_from_pdf(str(syr_pdf))
+            if data:
+                save_extraction(data, str(DATA_DIR / f"SYR_{current_cycle}_extracted.json"))
+                test_new = DATA_DIR / f"SYR_{current_cycle}_extracted.json"
+
+    if not test_new.exists():
+        return jsonify({'error': 'Could not download/extract SYR diagram for comparison.'}), 500
 
     # Load and compare
     with open(test_old, 'r') as f:
@@ -285,7 +308,7 @@ def test_comparison():
     result_dict['test_mode'] = True
     result_dict['test_description'] = 'Synthetic test data showing taxiway and runway changes'
     result_dict['old_cycle'] = '2601_TEST'
-    result_dict['new_cycle'] = '2602'
+    result_dict['new_cycle'] = get_current_cycle()
 
     return jsonify(result_dict)
 
