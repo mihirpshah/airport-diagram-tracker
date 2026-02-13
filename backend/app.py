@@ -396,12 +396,13 @@ def get_airport_name(code):
     """Get full airport name from code."""
     names = {
         'JFK': 'John F. Kennedy International',
-        'LGA': 'LaGuardia',
-        'EWR': 'Newark Liberty International',
-        'TEB': 'Teterboro',
-        'SWF': 'New York Stewart International',
-        'SYR': 'Syracuse Hancock International',
-        'YIP': 'Willow Run (Detroit)'
+        'ORD': "O'Hare International (Chicago)",
+        'LAX': 'Los Angeles International',
+        'ATL': 'Hartsfield-Jackson Atlanta',
+        'DFW': 'Dallas/Fort Worth International',
+        'SFO': 'San Francisco International',
+        'MIA': 'Miami International',
+        'SYR': 'Syracuse Hancock International'
     }
     return names.get(code, code)
 

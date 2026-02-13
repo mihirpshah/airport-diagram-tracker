@@ -15,14 +15,16 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Airport codes and their FAA diagram numbers
+# Major US hub airports
 AIRPORTS = {
-    "JFK": "00610",   # John F. Kennedy International
-    "LGA": "00289",   # LaGuardia
-    "EWR": "00285",   # Newark Liberty International
-    "TEB": "00890",   # Teterboro
-    "SWF": "00450",   # Stewart International
-    "SYR": "00411",   # Syracuse Hancock International
-    "YIP": "00467",   # Willow Run (test - new taxiway completed Oct 2025)
+    "JFK": "00610",   # John F. Kennedy International (New York)
+    "ORD": "00193",   # O'Hare International (Chicago)
+    "LAX": "00237",   # Los Angeles International
+    "ATL": "00016",   # Hartsfield-Jackson Atlanta International
+    "DFW": "00608",   # Dallas/Fort Worth International
+    "SFO": "00286",   # San Francisco International
+    "MIA": "00161",   # Miami International
+    "SYR": "00411",   # Syracuse Hancock International (for TEST mode)
 }
 
 # Base URL for FAA digital terminal procedures
