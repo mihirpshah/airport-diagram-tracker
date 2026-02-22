@@ -17,7 +17,7 @@ from pathlib import Path
 # Airport codes and their FAA diagram numbers
 # Major US hub airports
 AIRPORTS = {
-    "JFK": "00610",   # John F. Kennedy International (New York)
+    "BOS": "00313",   # Boston Logan International
     "ORD": "00193",   # O'Hare International (Chicago)
     "LAX": "00237",   # Los Angeles International
     "ATL": "00016",   # Hartsfield-Jackson Atlanta International

@@ -395,7 +395,7 @@ def serve_static(filename):
 def get_airport_name(code):
     """Get full airport name from code."""
     names = {
-        'JFK': 'John F. Kennedy International',
+        'BOS': 'Boston Logan International',
         'ORD': "O'Hare International (Chicago)",
         'LAX': 'Los Angeles International',
         'ATL': 'Hartsfield-Jackson Atlanta',
