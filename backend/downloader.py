@@ -14,17 +14,18 @@ import requests
 from datetime import datetime, timedelta
 from pathlib import Path
 
-# Airport codes and their FAA diagram numbers
+# Airport codes and their FAA diagram numbers (AL numbers)
+# These are the official FAA chart numbers for airport diagrams
 # Major US hub airports
 AIRPORTS = {
-    "BOS": "00058",   # Boston Logan International
-    "ORD": "00166",   # O'Hare International (Chicago)
-    "LAX": "00237",   # Los Angeles International
-    "ATL": "00016",   # Hartsfield-Jackson Atlanta International
-    "DFW": "00608",   # Dallas/Fort Worth International
-    "SFO": "00286",   # San Francisco International
-    "MIA": "00161",   # Miami International
-    "SYR": "00411",   # Syracuse Hancock International (for TEST mode)
+    "BOS": "00058",   # Boston Logan International (AL-58)
+    "ORD": "00166",   # O'Hare International Chicago (AL-166)
+    "LAX": "00237",   # Los Angeles International (AL-237)
+    "ATL": "00026",   # Hartsfield-Jackson Atlanta International (AL-26)
+    "DFW": "06039",   # Dallas/Fort Worth International (AL-6039)
+    "SFO": "00375",   # San Francisco International (AL-375)
+    "MIA": "00257",   # Miami International (AL-257)
+    "SYR": "00411",   # Syracuse Hancock International (AL-411) - for TEST mode
 }
 
 # Base URL for FAA digital terminal procedures
