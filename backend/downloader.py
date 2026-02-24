@@ -45,10 +45,16 @@ def get_current_cycle():
     Returns:
         str: 4-digit cycle code like "2602" (2026, cycle 02)
     """
-    # Reference: Cycle 2601 started on 2025-12-26
-    # Each cycle is exactly 28 days
-    reference_date = datetime(2025, 12, 26)
-    reference_cycle = 1
+    # AIRAC cycle reference dates (when each cycle becomes effective)
+    # Cycle 2601: 2025-12-26 (Dec 26, 2025)
+    # Cycle 2602: 2026-01-23 (Jan 23, 2026)
+    # Cycle 2603: 2026-02-20 (Feb 20, 2026)
+    # Cycle 2604: 2026-03-20 (Mar 20, 2026)
+    # etc. - each cycle is 28 days
+
+    # Reference: Cycle 2602 started on 2026-01-23
+    reference_date = datetime(2026, 1, 23)
+    reference_cycle = 2
     reference_year = 26  # Last two digits of 2026
 
     today = datetime.now()
@@ -88,6 +94,47 @@ def get_previous_cycle(current_cycle):
         return f"{year - 1:02d}13"
     else:
         return f"{year:02d}{cycle - 1:02d}"
+
+
+def check_cycle_available(cycle, airport_code="ATL"):
+    """
+    Check if a cycle is available on the FAA website.
+    Uses ATL as a test since it's always published.
+    """
+    airport_num = AIRPORTS.get(airport_code, "00016")  # Default to ATL
+    url = f"{FAA_BASE_URL}/{cycle}/{airport_num}AD.PDF"
+    try:
+        response = requests.head(url, timeout=10)
+        return response.status_code == 200
+    except:
+        return False
+
+
+def get_latest_available_cycle():
+    """
+    Find the latest cycle that's actually available on the FAA website.
+    Sometimes the calculated current cycle hasn't been published yet.
+    """
+    current = get_current_cycle()
+
+    # Check if current cycle is available
+    if check_cycle_available(current):
+        return current
+
+    # If not, try the previous cycle
+    previous = get_previous_cycle(current)
+    if check_cycle_available(previous):
+        print(f"Note: Cycle {current} not yet available, using {previous}")
+        return previous
+
+    # Fallback to the one before that
+    prev_prev = get_previous_cycle(previous)
+    if check_cycle_available(prev_prev):
+        print(f"Note: Cycles {current} and {previous} not available, using {prev_prev}")
+        return prev_prev
+
+    # Last resort - return the calculated current
+    return current
 
 
 def download_diagram(airport_code, cycle, force=False):
@@ -156,7 +203,8 @@ def download_airport_pair(airport_code, current_cycle=None):
         tuple: (current_path, previous_path) or (None, None) on failure
     """
     if current_cycle is None:
-        current_cycle = get_current_cycle()
+        # Use the latest available cycle (handles FAA publishing delays)
+        current_cycle = get_latest_available_cycle()
 
     previous_cycle = get_previous_cycle(current_cycle)
 

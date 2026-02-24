@@ -27,7 +27,7 @@ load_dotenv()
 try:
     from downloader import (
         AIRPORTS, download_airport_pair, download_diagram,
-        get_current_cycle, get_previous_cycle
+        get_current_cycle, get_previous_cycle, get_latest_available_cycle
     )
     from pdf_extractor import extract_from_pdf, save_extraction, to_dict as extraction_to_dict
     from comparator import (
@@ -37,7 +37,7 @@ try:
 except ImportError:
     from backend.downloader import (
         AIRPORTS, download_airport_pair, download_diagram,
-        get_current_cycle, get_previous_cycle
+        get_current_cycle, get_previous_cycle, get_latest_available_cycle
     )
     from backend.pdf_extractor import extract_from_pdf, save_extraction, to_dict as extraction_to_dict
     from backend.comparator import (
@@ -161,7 +161,8 @@ def compare_airport(airport_code):
     if airport_code not in AIRPORTS:
         return jsonify({'error': f'Unknown airport: {airport_code}'}), 400
 
-    current_cycle = get_current_cycle()
+    # Use the latest available cycle (handles FAA publishing delays)
+    current_cycle = get_latest_available_cycle()
     previous_cycle = get_previous_cycle(current_cycle)
 
     print(f"Comparing {airport_code}: {previous_cycle} -> {current_cycle}")
