@@ -27,8 +27,8 @@ data/*.pdf
 data/*_extracted.json
 data/*_comparison*.json
 
-# Keep the test data file though
-!data/SYR_2601_TEST_extracted.json
+# Keep the test data file though (uses BOS diagrams for TEST mode)
+!data/BOS_2601_TEST_extracted.json
 
 # Logs
 *.log

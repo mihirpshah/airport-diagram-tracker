@@ -588,7 +588,7 @@ async function loadTestComparison() {
             <p class="test-description">${data.test_description || 'Demonstrating change detection with simulated taxiway and runway changes'}</p>
         `;
 
-        // Load SYR PDFs with highlights
+        // Load BOS PDFs with highlights
         // Use previous cycle for "old" (real PDF) and current cycle for "new"
         // The test compares synthetic 2601_TEST data against real current cycle
         const testOldCycle = previousCycle || '2601';
@@ -598,8 +598,8 @@ async function loadTestComparison() {
         document.getElementById('pdf-new-cycle').textContent = testNewCycle;
 
         const [oldMeta, newMeta] = await Promise.all([
-            renderPDF(`/pdf/SYR_${testOldCycle}.pdf`, 'pdf-canvas-old'),
-            renderPDF(`/pdf/SYR_${testNewCycle}.pdf`, 'pdf-canvas-new')
+            renderPDF(`/pdf/BOS_${testOldCycle}.pdf`, 'pdf-canvas-old'),
+            renderPDF(`/pdf/BOS_${testNewCycle}.pdf`, 'pdf-canvas-new')
         ]);
 
         // Draw highlights - REMOVED on old diagram, ADDED on new diagram

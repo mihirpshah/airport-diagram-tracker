@@ -25,7 +25,6 @@ AIRPORTS = {
     "DFW": "06039",   # Dallas/Fort Worth International (AL-6039)
     "SFO": "00375",   # San Francisco International (AL-375)
     "MIA": "00257",   # Miami International (AL-257)
-    "SYR": "00411",   # Syracuse Hancock International (AL-411) - for TEST mode
 }
 
 # Base URL for FAA digital terminal procedures
