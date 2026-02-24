@@ -35,45 +35,30 @@ FAA_BASE_URL = "https://aeronav.faa.gov/d-tpp"
 DATA_DIR = Path(os.environ.get('DATA_DIR', Path(__file__).parent.parent / "data"))
 
 
-def get_current_cycle():
+def check_cycle_available(cycle, airport_code="ATL"):
     """
-    Calculate the current AIRAC cycle number.
-
-    AIRAC cycles are 28 days each, starting from a known reference date.
-    The cycle code is: YY + NN where YY=year, NN=cycle number (01-13)
-
-    Returns:
-        str: 4-digit cycle code like "2602" (2026, cycle 02)
+    Check if a cycle is available on the FAA website.
+    Uses ATL as a test since it's always published.
     """
-    # AIRAC cycle reference dates (when each cycle becomes effective)
-    # Cycle 2601: 2025-12-26 (Dec 26, 2025)
-    # Cycle 2602: 2026-01-23 (Jan 23, 2026)
-    # Cycle 2603: 2026-02-20 (Feb 20, 2026)
-    # Cycle 2604: 2026-03-20 (Mar 20, 2026)
-    # etc. - each cycle is 28 days
+    airport_num = AIRPORTS.get(airport_code, "00016")  # Default to ATL
+    url = f"{FAA_BASE_URL}/{cycle}/{airport_num}AD.PDF"
+    try:
+        response = requests.head(url, timeout=10)
+        return response.status_code == 200
+    except:
+        return False
 
-    # Reference: Cycle 2602 started on 2026-01-23
-    reference_date = datetime(2026, 1, 23)
-    reference_cycle = 2
-    reference_year = 26  # Last two digits of 2026
 
-    today = datetime.now()
-    days_since_reference = (today - reference_date).days
+def get_next_cycle(cycle):
+    """Get the next AIRAC cycle code."""
+    year = int(cycle[:2])
+    cycle_num = int(cycle[2:])
 
-    # Calculate how many complete cycles have passed
-    cycles_passed = days_since_reference // 28
-
-    # Calculate current cycle number (1-13 per year)
-    current_cycle = reference_cycle + cycles_passed
-    current_year = reference_year
-
-    # Handle year rollover (13 cycles per year)
-    while current_cycle > 13:
-        current_cycle -= 13
-        current_year += 1
-
-    # Format as 4-digit string: YYNN
-    return f"{current_year:02d}{current_cycle:02d}"
+    if cycle_num >= 13:
+        # Roll to next year's cycle 01
+        return f"{year + 1:02d}01"
+    else:
+        return f"{year:02d}{cycle_num + 1:02d}"
 
 
 def get_previous_cycle(current_cycle):
@@ -96,25 +81,78 @@ def get_previous_cycle(current_cycle):
         return f"{year:02d}{cycle - 1:02d}"
 
 
-def check_cycle_available(cycle, airport_code="ATL"):
+def get_current_cycle():
     """
-    Check if a cycle is available on the FAA website.
-    Uses ATL as a test since it's always published.
+    Dynamically find the current AIRAC cycle by checking the FAA website.
+    Starts from a known cycle and searches forward/backward to find the latest available.
+
+    Returns:
+        str: 4-digit cycle code like "2602" (2026, cycle 02)
     """
-    airport_num = AIRPORTS.get(airport_code, "00016")  # Default to ATL
-    url = f"{FAA_BASE_URL}/{cycle}/{airport_num}AD.PDF"
-    try:
-        response = requests.head(url, timeout=10)
-        return response.status_code == 200
-    except:
-        return False
+    # Start with a known recent cycle and search for the latest available
+    # We'll check cycles around the expected current one
+
+    # Calculate approximate current cycle based on date
+    # Reference: Cycle 2501 started on 2024-12-26
+    reference_date = datetime(2024, 12, 26)
+    reference_cycle_num = 1
+    reference_year = 25
+
+    today = datetime.now()
+    days_since_reference = (today - reference_date).days
+    cycles_passed = days_since_reference // 28
+
+    approx_cycle_num = reference_cycle_num + cycles_passed
+    approx_year = reference_year
+
+    while approx_cycle_num > 13:
+        approx_cycle_num -= 13
+        approx_year += 1
+
+    approx_cycle = f"{approx_year:02d}{approx_cycle_num:02d}"
+
+    # Now search for the actual latest available cycle
+    # Check the approximate cycle and a few around it
+    return find_latest_available_cycle(approx_cycle)
+
+
+def find_latest_available_cycle(starting_cycle):
+    """
+    Find the latest available cycle on the FAA website.
+    Searches forward from the starting cycle, then backward if needed.
+    """
+    # First check if starting cycle is available
+    if check_cycle_available(starting_cycle):
+        # Try to find a newer one
+        test_cycle = starting_cycle
+        latest_found = starting_cycle
+
+        # Check up to 3 cycles forward
+        for _ in range(3):
+            test_cycle = get_next_cycle(test_cycle)
+            if check_cycle_available(test_cycle):
+                latest_found = test_cycle
+            else:
+                break
+
+        return latest_found
+    else:
+        # Starting cycle not available, search backward
+        test_cycle = starting_cycle
+        for _ in range(5):  # Check up to 5 cycles back
+            test_cycle = get_previous_cycle(test_cycle)
+            if check_cycle_available(test_cycle):
+                return test_cycle
+
+        # Fallback - return the starting cycle anyway
+        return starting_cycle
 
 
 def get_latest_available_cycle():
     """
-    Find the latest cycle that's actually available on the FAA website.
-    Sometimes the calculated current cycle hasn't been published yet.
+    Alias for get_current_cycle() - finds the latest available cycle on FAA website.
     """
+    return get_current_cycle()
     current = get_current_cycle()
 
     # Check if current cycle is available
