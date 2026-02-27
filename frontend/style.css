@@ -307,6 +307,149 @@ main {
 }
 
 /* =============================================================================
+   Slider Comparison (Before/After)
+   ============================================================================= */
+
+#slider-comparison {
+    margin-bottom: 1rem;
+}
+
+#slider-comparison h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.slider-hint {
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: var(--text-muted);
+}
+
+#slider-container {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+}
+
+#slider-wrapper {
+    position: relative;
+    display: inline-block;
+    cursor: ew-resize;
+    user-select: none;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* The "old" canvas sits behind as the full background */
+#slider-canvas-old {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* The overlay container clips the "new" canvas */
+#slider-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 50%; /* Initial position - will be updated by JS */
+    overflow: hidden;
+}
+
+/* The "new" canvas is positioned to align with the old canvas */
+#slider-canvas-new {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+}
+
+/* The draggable handle/divider */
+#slider-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%; /* Initial position - will be updated by JS */
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.handle-bar {
+    width: 4px;
+    flex: 1;
+    background: white;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.handle-circle {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 3px solid var(--primary-color);
+}
+
+.handle-arrows {
+    font-size: 12px;
+    color: var(--primary-color);
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* Labels on each side */
+.slider-label {
+    position: absolute;
+    top: 10px;
+    padding: 4px 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.slider-label-left {
+    left: 10px;
+}
+
+.slider-label-right {
+    right: 10px;
+}
+
+/* Hover effect on wrapper */
+#slider-wrapper:hover .handle-circle {
+    transform: scale(1.05);
+    border-color: #1d4ed8;
+}
+
+/* Dragging state */
+#slider-wrapper.dragging {
+    cursor: grabbing;
+}
+
+#slider-wrapper.dragging .handle-circle {
+    background: var(--primary-color);
+}
+
+#slider-wrapper.dragging .handle-arrows {
+    color: white;
+}
+
+/* =============================================================================
    PDF Comparison
    ============================================================================= */
 

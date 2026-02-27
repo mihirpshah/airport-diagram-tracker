@@ -45,6 +45,36 @@
                 </div>
             </section>
 
+            <!-- Slider Comparison (Before/After) -->
+            <section id="slider-comparison" class="panel">
+                <h2>Slider Comparison <span class="slider-hint">(drag the handle to compare)</span></h2>
+                <div id="slider-container">
+                    <div id="slider-wrapper">
+                        <!-- Previous cycle (background/left side) -->
+                        <canvas id="slider-canvas-old"></canvas>
+                        <!-- Current cycle (overlay/right side, clipped) -->
+                        <div id="slider-overlay">
+                            <canvas id="slider-canvas-new"></canvas>
+                        </div>
+                        <!-- Draggable divider -->
+                        <div id="slider-handle">
+                            <div class="handle-bar"></div>
+                            <div class="handle-circle">
+                                <span class="handle-arrows">◀ ▶</span>
+                            </div>
+                            <div class="handle-bar"></div>
+                        </div>
+                        <!-- Labels -->
+                        <div class="slider-label slider-label-left">
+                            <span id="slider-old-cycle">Previous</span>
+                        </div>
+                        <div class="slider-label slider-label-right">
+                            <span id="slider-new-cycle">Current</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Side-by-Side PDF Comparison -->
             <section id="pdf-comparison" class="panel">
                 <h2>Side-by-Side Comparison</h2>

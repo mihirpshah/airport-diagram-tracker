@@ -44,6 +44,10 @@ let pdfMetadata = {
     scale: 1
 };
 
+// Slider comparison state
+let sliderPosition = 50; // Percentage (0-100)
+let isDraggingSlider = false;
+
 // =============================================================================
 // Initialization
 // =============================================================================
@@ -51,6 +55,7 @@ let pdfMetadata = {
 document.addEventListener('DOMContentLoaded', () => {
     loadAirports();
     loadCycles();
+    initSlider();
 });
 
 async function loadAirports() {
@@ -126,8 +131,11 @@ async function selectAirport(code) {
 
         displayChangeReport(data);
 
-        // Load PDFs with highlighting
+        // Load PDFs with highlighting (side-by-side view)
         await loadPDFsWithHighlights(code, currentChanges, currentRunwayChanges);
+
+        // Load slider comparison view
+        await loadSliderPDFs(code, previousCycle, currentCycle);
 
         // Also fetch historical data
         loadHistoricalData(code);
@@ -614,6 +622,9 @@ async function loadTestComparison() {
             drawHighlights('pdf-canvas-new', addedChanges, newMeta, 'new', currentRunwayChanges);
         }
 
+        // Load slider comparison view for test mode
+        await loadSliderPDFs('BOS', testOldCycle, testNewCycle);
+
         // Show test info in last-change panel
         document.getElementById('pdf-last-change-cycle').textContent = 'N/A';
         document.getElementById('last-change-info').textContent = 'Test mode - highlights shown on PDFs';
@@ -643,5 +654,197 @@ async function loadTestComparison() {
             `<p class="error-message">Failed to load test data: ${error.message}</p>`;
     } finally {
         document.getElementById('test-btn').classList.remove('loading');
+    }
+}
+
+// =============================================================================
+// Slider Comparison (Before/After)
+// =============================================================================
+
+/**
+ * Initialize the slider comparison feature
+ * Sets up event listeners for mouse/touch dragging
+ */
+function initSlider() {
+    const wrapper = document.getElementById('slider-wrapper');
+    if (!wrapper) return;
+
+    // Mouse events
+    wrapper.addEventListener('mousedown', startSliderDrag);
+    document.addEventListener('mousemove', moveSlider);
+    document.addEventListener('mouseup', stopSliderDrag);
+
+    // Touch events for mobile
+    wrapper.addEventListener('touchstart', startSliderDrag, { passive: false });
+    document.addEventListener('touchmove', moveSlider, { passive: false });
+    document.addEventListener('touchend', stopSliderDrag);
+
+    // Set initial position
+    updateSliderPosition(50);
+}
+
+/**
+ * Start dragging the slider
+ */
+function startSliderDrag(e) {
+    e.preventDefault();
+    isDraggingSlider = true;
+    document.getElementById('slider-wrapper').classList.add('dragging');
+    moveSlider(e);
+}
+
+/**
+ * Stop dragging the slider
+ */
+function stopSliderDrag() {
+    isDraggingSlider = false;
+    const wrapper = document.getElementById('slider-wrapper');
+    if (wrapper) {
+        wrapper.classList.remove('dragging');
+    }
+}
+
+/**
+ * Handle slider movement during drag
+ */
+function moveSlider(e) {
+    if (!isDraggingSlider) return;
+
+    const wrapper = document.getElementById('slider-wrapper');
+    if (!wrapper) return;
+
+    const rect = wrapper.getBoundingClientRect();
+
+    // Get X position from mouse or touch
+    let clientX;
+    if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+    } else {
+        clientX = e.clientX;
+    }
+
+    // Calculate percentage position
+    let percentage = ((clientX - rect.left) / rect.width) * 100;
+
+    // Clamp between 0 and 100
+    percentage = Math.max(0, Math.min(100, percentage));
+
+    updateSliderPosition(percentage);
+}
+
+/**
+ * Update the visual position of the slider
+ * @param {number} percentage - Position from 0 to 100
+ */
+function updateSliderPosition(percentage) {
+    sliderPosition = percentage;
+
+    const handle = document.getElementById('slider-handle');
+    const overlay = document.getElementById('slider-overlay');
+
+    if (handle) {
+        handle.style.left = `${percentage}%`;
+    }
+
+    if (overlay) {
+        // The overlay shows the "new" image on the right side
+        // Width is the remaining percentage from the handle to the right edge
+        overlay.style.width = `${100 - percentage}%`;
+    }
+}
+
+/**
+ * Load PDFs into the slider comparison view
+ * @param {string} airportCode - The airport code
+ * @param {string} oldCycle - Previous cycle code
+ * @param {string} newCycle - Current cycle code
+ */
+async function loadSliderPDFs(airportCode, oldCycle, newCycle) {
+    // Update labels
+    document.getElementById('slider-old-cycle').textContent = `Cycle ${oldCycle}`;
+    document.getElementById('slider-new-cycle').textContent = `Cycle ${newCycle}`;
+
+    // Render both PDFs to the slider canvases
+    const oldUrl = `/pdf/${airportCode}_${oldCycle}.pdf`;
+    const newUrl = `/pdf/${airportCode}_${newCycle}.pdf`;
+
+    try {
+        // Render old (previous) PDF
+        await renderSliderPDF(oldUrl, 'slider-canvas-old');
+
+        // Render new (current) PDF - needs to match dimensions of old
+        await renderSliderPDF(newUrl, 'slider-canvas-new');
+
+        // Sync the new canvas size with old canvas
+        syncSliderCanvases();
+
+        // Reset slider to middle
+        updateSliderPosition(50);
+
+    } catch (error) {
+        console.error('Failed to load slider PDFs:', error);
+    }
+}
+
+/**
+ * Render a PDF to a slider canvas
+ */
+async function renderSliderPDF(url, canvasId) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+
+    try {
+        const pdf = await pdfjsLib.getDocument(url).promise;
+        const page = await pdf.getPage(1);
+
+        // Use a fixed scale for consistent sizing
+        // Target width around 500px for the slider
+        const viewport = page.getViewport({ scale: 1 });
+        const targetWidth = 500;
+        const scale = targetWidth / viewport.width;
+        const scaledViewport = page.getViewport({ scale });
+
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
+
+        await page.render({
+            canvasContext: ctx,
+            viewport: scaledViewport
+        }).promise;
+
+        return { width: scaledViewport.width, height: scaledViewport.height };
+
+    } catch (error) {
+        console.error(`Failed to render slider PDF ${url}:`, error);
+        // Draw error state
+        canvas.width = 500;
+        canvas.height = 700;
+        ctx.fillStyle = '#fee2e2';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#dc2626';
+        ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('PDF not available', canvas.width / 2, canvas.height / 2);
+        return null;
+    }
+}
+
+/**
+ * Ensure both slider canvases have the same dimensions
+ */
+function syncSliderCanvases() {
+    const oldCanvas = document.getElementById('slider-canvas-old');
+    const newCanvas = document.getElementById('slider-canvas-new');
+
+    if (oldCanvas && newCanvas) {
+        // Make new canvas match old canvas dimensions if they differ
+        if (newCanvas.width !== oldCanvas.width || newCanvas.height !== oldCanvas.height) {
+            // The canvases should already match from PDF rendering
+            // but the new canvas positioning needs to be set
+        }
+
+        // Position the new canvas so it aligns with the old canvas
+        newCanvas.style.width = `${oldCanvas.width}px`;
+        newCanvas.style.height = `${oldCanvas.height}px`;
     }
 }
