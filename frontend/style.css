@@ -157,26 +157,33 @@ main {
 }
 
 /* =============================================================================
-   Content Area - Side by side layout
+   Content Area Layout
    ============================================================================= */
 
-#content-area {
+/* Top row: Change Report (left) + Slider (right) */
+#top-content-area {
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 #change-report {
-    max-height: 700px;
+    max-height: 600px;
     overflow-y: auto;
 }
 
+#slider-comparison {
+    min-height: 400px;
+}
+
+/* Side-by-Side Comparison takes full width below */
 #pdf-comparison {
-    min-height: 500px;
+    width: 100%;
 }
 
 @media (max-width: 1000px) {
-    #content-area {
+    #top-content-area {
         grid-template-columns: 1fr;
     }
 }
@@ -310,9 +317,7 @@ main {
    Slider Comparison (Before/After)
    ============================================================================= */
 
-#slider-comparison {
-    margin-bottom: 1rem;
-}
+/* Slider comparison styling is handled in #top-content-area grid */
 
 #slider-comparison h2 {
     display: flex;

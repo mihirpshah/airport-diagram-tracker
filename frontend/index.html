@@ -31,9 +31,8 @@
             </div>
         </section>
 
-        <!-- Main content area -->
-        <div id="content-area">
-
+        <!-- Top row: Change Report + Slider Comparison -->
+        <div id="top-content-area">
             <!-- Change Report (Text) -->
             <section id="change-report" class="panel">
                 <h2>Change Report</h2>
@@ -74,34 +73,33 @@
                     </div>
                 </div>
             </section>
+        </div>
 
-            <!-- Side-by-Side PDF Comparison -->
-            <section id="pdf-comparison" class="panel">
-                <h2>Side-by-Side Comparison</h2>
-                <div id="pdf-container">
-                    <div class="pdf-viewer">
-                        <h3>Last Changed: <span id="pdf-last-change-cycle">--</span></h3>
-                        <div class="pdf-wrapper">
-                            <canvas id="pdf-canvas-last-change"></canvas>
-                        </div>
-                        <p id="last-change-info" class="pdf-info"></p>
+        <!-- Side-by-Side PDF Comparison (Full Width) -->
+        <section id="pdf-comparison" class="panel">
+            <h2>Side-by-Side Comparison</h2>
+            <div id="pdf-container">
+                <div class="pdf-viewer">
+                    <h3>Last Changed: <span id="pdf-last-change-cycle">--</span></h3>
+                    <div class="pdf-wrapper">
+                        <canvas id="pdf-canvas-last-change"></canvas>
                     </div>
-                    <div class="pdf-viewer">
-                        <h3>Previous Cycle: <span id="pdf-old-cycle">--</span></h3>
-                        <div class="pdf-wrapper">
-                            <canvas id="pdf-canvas-old"></canvas>
-                        </div>
-                    </div>
-                    <div class="pdf-viewer">
-                        <h3>Current Cycle: <span id="pdf-new-cycle">--</span></h3>
-                        <div class="pdf-wrapper">
-                            <canvas id="pdf-canvas-new"></canvas>
-                        </div>
+                    <p id="last-change-info" class="pdf-info"></p>
+                </div>
+                <div class="pdf-viewer">
+                    <h3>Previous Cycle: <span id="pdf-old-cycle">--</span></h3>
+                    <div class="pdf-wrapper">
+                        <canvas id="pdf-canvas-old"></canvas>
                     </div>
                 </div>
-            </section>
-
-        </div>
+                <div class="pdf-viewer">
+                    <h3>Current Cycle: <span id="pdf-new-cycle">--</span></h3>
+                    <div class="pdf-wrapper">
+                        <canvas id="pdf-canvas-new"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
