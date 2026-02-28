@@ -252,7 +252,7 @@ def run_scheduled_check(force: bool = False):
         else:
             no_change_airports.append(airport_code)
 
-    # Send summary email
+    # Print summary (no email if no changes)
     print()
     print("-" * 60)
     print("Summary:")
@@ -263,12 +263,17 @@ def run_scheduled_check(force: bool = False):
         for code, err in errors:
             print(f"    - {code}: {err}")
 
-    if is_email_configured():
+    # Only send summary email if there were changes
+    # (Individual airport alerts are already sent above)
+    if len(changes_by_airport) > 0 and is_email_configured():
+        print("\n📧 Sending summary email (changes detected)...")
         send_daily_summary(
             changes_by_airport=changes_by_airport,
             no_change_airports=no_change_airports,
             app_url=app_url
         )
+    elif len(changes_by_airport) == 0:
+        print("\n✓ No changes detected - no email sent.")
 
     # Save the current cycle as checked
     save_last_checked_cycle(data_dir, current_cycle)
