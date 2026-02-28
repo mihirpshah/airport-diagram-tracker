@@ -1,0 +1,42 @@
+# Render.com deployment configuration
+# https://render.com/docs/blueprint-spec
+
+services:
+  # Main web application
+  - type: web
+    name: airport-tracker-hubs
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --chdir backend app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.7"
+      - key: DATA_DIR
+        value: /tmp/data
+      - key: APP_URL
+        value: https://airport-tracker-hubs.onrender.com
+    plan: free
+
+  # Cron job to check for diagram changes each AIRAC cycle
+  # Runs daily at 10:00 UTC - will only send emails when a new cycle is detected
+  - type: cron
+    name: airport-diagram-check
+    runtime: python
+    schedule: "0 10 * * *"  # Daily at 10:00 UTC
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m backend.scheduled_check
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.7"
+      - key: DATA_DIR
+        value: /tmp/data
+      - key: APP_URL
+        value: https://airport-tracker-hubs.onrender.com
+      # Email configuration - set these in the Render dashboard
+      - key: GMAIL_ADDRESS
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: ALERT_RECIPIENTS
+        sync: false
+    plan: free

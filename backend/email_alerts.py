@@ -11,7 +11,8 @@ To set up:
 Environment variables required:
 - GMAIL_ADDRESS: Your Gmail address (e.g., your.email@gmail.com)
 - GMAIL_APP_PASSWORD: The 16-character app password from Google
-- ALERT_RECIPIENT_EMAIL: Email address to send alerts to (can be same as GMAIL_ADDRESS)
+- ALERT_RECIPIENTS: Comma-separated list of email addresses to send alerts to
+                   (e.g., "user1@example.com,user2@example.com")
 """
 
 import os
@@ -25,12 +26,17 @@ from typing import List, Dict, Optional
 def get_email_config() -> Dict[str, str]:
     """
     Get email configuration from environment variables.
-    Returns dict with gmail_address, gmail_password, recipient_email.
+    Returns dict with gmail_address, gmail_password, recipient_emails (list).
     """
+    # Support both old single recipient and new multiple recipients
+    recipients_str = os.environ.get('ALERT_RECIPIENTS', '') or os.environ.get('ALERT_RECIPIENT_EMAIL', '')
+    # Parse comma-separated list of emails
+    recipients = [email.strip() for email in recipients_str.split(',') if email.strip()]
+
     return {
         'gmail_address': os.environ.get('GMAIL_ADDRESS', ''),
         'gmail_password': os.environ.get('GMAIL_APP_PASSWORD', ''),
-        'recipient_email': os.environ.get('ALERT_RECIPIENT_EMAIL', '')
+        'recipient_emails': recipients
     }
 
 
@@ -40,7 +46,7 @@ def is_email_configured() -> bool:
     return all([
         config['gmail_address'],
         config['gmail_password'],
-        config['recipient_email']
+        len(config['recipient_emails']) > 0
     ])
 
 
@@ -185,7 +191,8 @@ Configure alerts at: https://github.com/your-repo/airport-diagram-tracker
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
     msg['From'] = config['gmail_address']
-    msg['To'] = config['recipient_email']
+    # Join multiple recipients with comma for the To header
+    msg['To'] = ', '.join(config['recipient_emails'])
 
     # Attach both plain text and HTML versions
     msg.attach(MIMEText(body_text, 'plain'))
@@ -195,9 +202,15 @@ Configure alerts at: https://github.com/your-repo/airport-diagram-tracker
         # Connect to Gmail SMTP server
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(config['gmail_address'], config['gmail_password'])
-            server.send_message(msg)
+            # Send to all recipients
+            server.sendmail(
+                config['gmail_address'],
+                config['recipient_emails'],
+                msg.as_string()
+            )
 
-        print(f"✅ Alert email sent to {config['recipient_email']} for {airport_code}")
+        recipients_str = ', '.join(config['recipient_emails'])
+        print(f"✅ Alert email sent to {recipients_str} for {airport_code}")
         return True
 
     except smtplib.SMTPAuthenticationError as e:
@@ -271,14 +284,20 @@ Airports with changes: {total_airports_with_changes}
     msg = MIMEText(body_text, 'plain')
     msg['Subject'] = subject
     msg['From'] = config['gmail_address']
-    msg['To'] = config['recipient_email']
+    msg['To'] = ', '.join(config['recipient_emails'])
 
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(config['gmail_address'], config['gmail_password'])
-            server.send_message(msg)
+            # Send to all recipients
+            server.sendmail(
+                config['gmail_address'],
+                config['recipient_emails'],
+                msg.as_string()
+            )
 
-        print(f"✅ Daily summary email sent to {config['recipient_email']}")
+        recipients_str = ', '.join(config['recipient_emails'])
+        print(f"✅ Daily summary email sent to {recipients_str}")
         return True
 
     except Exception as e:
