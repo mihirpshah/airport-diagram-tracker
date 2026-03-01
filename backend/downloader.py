@@ -16,15 +16,13 @@ from pathlib import Path
 
 # Airport codes and their FAA diagram numbers (AL numbers)
 # These are the official FAA chart numbers for airport diagrams
-# Major US hub airports
+# Port Authority of NY/NJ airports
 AIRPORTS = {
-    "BOS": "00058",   # Boston Logan International (AL-58)
-    "ORD": "00166",   # O'Hare International Chicago (AL-166)
-    "LAX": "00237",   # Los Angeles International (AL-237)
-    "ATL": "00026",   # Hartsfield-Jackson Atlanta International (AL-26)
-    "DFW": "06039",   # Dallas/Fort Worth International (AL-6039)
-    "SFO": "00375",   # San Francisco International (AL-375)
-    "MIA": "00257",   # Miami International (AL-257)
+    "JFK": "00610",   # John F. Kennedy International (AL-610)
+    "LGA": "00289",   # LaGuardia (AL-289)
+    "EWR": "00285",   # Newark Liberty International (AL-285)
+    "SWF": "00450",   # Stewart International (AL-450)
+    "TEB": "00890",   # Teterboro (AL-890)
 }
 
 # Base URL for FAA digital terminal procedures

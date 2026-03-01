@@ -108,7 +108,6 @@ async function selectAirport(code) {
             btn.classList.add('active', 'loading');
         }
     });
-    document.getElementById('test-btn').classList.remove('active');
 
     currentAirport = code;
 
@@ -554,107 +553,6 @@ function drawLegend(ctx, changes, meta, runwayChanges = []) {
 
         ctx.fillText(label, legendX + 30, y);
     });
-}
-
-// =============================================================================
-// Test Mode - Load synthetic comparison data with highlights
-// =============================================================================
-
-async function loadTestComparison() {
-    // Update button states
-    document.querySelectorAll('.airport-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.getElementById('test-btn').classList.add('active');
-
-    currentAirport = 'TEST';
-
-    document.getElementById('report-summary').innerHTML =
-        '<p><span class="loading-spinner"></span> Loading test data...</p>';
-    document.getElementById('report-details').innerHTML = '';
-
-    try {
-        const response = await fetch(`${API_BASE}/api/test-compare`);
-        const data = await response.json();
-
-        if (data.error) {
-            throw new Error(data.error);
-        }
-
-        // Store changes for highlighting
-        currentChanges = data.taxiway_changes || [];
-        currentRunwayChanges = data.runway_changes || [];
-
-        // Display the comparison
-        displayChangeReport(data);
-
-        // Add test mode banner
-        const summaryEl = document.getElementById('report-summary');
-        summaryEl.innerHTML = `
-            <div class="test-mode-banner">TEST MODE - Synthetic Data</div>
-            ${summaryEl.innerHTML}
-            <p class="test-description">${data.test_description || 'Demonstrating change detection with simulated taxiway and runway changes'}</p>
-        `;
-
-        // Load BOS PDFs with highlights
-        // Use previous cycle for "old" (real PDF) and current cycle for "new"
-        // The test compares synthetic 2601_TEST data against real current cycle
-        const testOldCycle = previousCycle || '2601';
-        const testNewCycle = data.new_cycle || currentCycle || '2602';
-
-        document.getElementById('pdf-old-cycle').textContent = `${testOldCycle} (TEST data)`;
-        document.getElementById('pdf-new-cycle').textContent = testNewCycle;
-
-        const [oldMeta, newMeta] = await Promise.all([
-            renderPDF(`/pdf/BOS_${testOldCycle}.pdf`, 'pdf-canvas-old'),
-            renderPDF(`/pdf/BOS_${testNewCycle}.pdf`, 'pdf-canvas-new')
-        ]);
-
-        // Draw highlights - REMOVED on old diagram, ADDED on new diagram
-        // Include runway changes on both diagrams
-        if (oldMeta) {
-            const removedChanges = currentChanges.filter(c => c.change_type === 'REMOVED');
-            drawHighlights('pdf-canvas-old', removedChanges, oldMeta, 'old', currentRunwayChanges);
-        }
-
-        if (newMeta) {
-            const addedChanges = currentChanges.filter(c => c.change_type === 'ADDED');
-            drawHighlights('pdf-canvas-new', addedChanges, newMeta, 'new', currentRunwayChanges);
-        }
-
-        // Load slider comparison view for test mode
-        await loadSliderPDFs('BOS', testOldCycle, testNewCycle);
-
-        // Show test info in last-change panel
-        document.getElementById('pdf-last-change-cycle').textContent = 'N/A';
-        document.getElementById('last-change-info').textContent = 'Test mode - highlights shown on PDFs';
-        document.getElementById('last-change-info').className = 'pdf-info';
-
-        // Draw test indicator on last-change canvas
-        const canvas = document.getElementById('pdf-canvas-last-change');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 300;
-        canvas.height = 150;
-        ctx.fillStyle = '#fef3c7';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#d97706';
-        ctx.font = 'bold 16px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('TEST MODE', canvas.width / 2, 40);
-        ctx.font = '12px sans-serif';
-        ctx.fillStyle = '#92400e';
-        ctx.fillText('Synthetic changes:', canvas.width / 2, 70);
-        ctx.fillText('+ Taxiway Y (green)', canvas.width / 2, 90);
-        ctx.fillText('- Taxiway Z (red)', canvas.width / 2, 110);
-        ctx.fillText('RWY 10/28: 7200→7499 ft (purple)', canvas.width / 2, 130);
-
-    } catch (error) {
-        console.error('Test comparison failed:', error);
-        document.getElementById('report-summary').innerHTML =
-            `<p class="error-message">Failed to load test data: ${error.message}</p>`;
-    } finally {
-        document.getElementById('test-btn').classList.remove('loading');
-    }
 }
 
 // =============================================================================

@@ -275,70 +275,6 @@ def historical_analysis(airport_code):
     return jsonify(result)
 
 
-@app.route('/api/test-compare', methods=['GET'])
-def test_comparison():
-    """
-    GET /api/test-compare
-    Returns a test comparison using synthetic data to demonstrate change detection.
-    Uses modified BOS data that shows:
-    - Taxiway Y added
-    - Taxiway Z removed
-    - Runway 10/28 extended by 299 ft
-    """
-    # The test_old file is shipped with the repo (synthetic data)
-    # Look in both DATA_DIR and the repo's data directory
-    repo_data_dir = Path(__file__).parent.parent / "data"
-
-    test_old = DATA_DIR / "BOS_2601_TEST_extracted.json"
-    if not test_old.exists():
-        test_old = repo_data_dir / "BOS_2601_TEST_extracted.json"
-
-    current_cycle = get_current_cycle()
-    test_new = DATA_DIR / f"BOS_{current_cycle}_extracted.json"
-
-    if not test_old.exists():
-        return jsonify({
-            'error': 'Test data not found. The BOS_2601_TEST_extracted.json file is missing.',
-            'instructions': 'This file should be included in the repository.'
-        }), 404
-
-    # Download and extract BOS if needed (on-demand)
-    if not test_new.exists():
-        bos_pdf = DATA_DIR / f"BOS_{current_cycle}.pdf"
-
-        # Download the current BOS diagram
-        if not bos_pdf.exists():
-            download_diagram("BOS", current_cycle)
-
-        # Extract it
-        if bos_pdf.exists():
-            data = extract_from_pdf(str(bos_pdf))
-            if data:
-                save_extraction(data, str(DATA_DIR / f"BOS_{current_cycle}_extracted.json"))
-                test_new = DATA_DIR / f"BOS_{current_cycle}_extracted.json"
-
-    if not test_new.exists():
-        return jsonify({'error': 'Could not download/extract BOS diagram for comparison.'}), 500
-
-    # Load and compare
-    with open(test_old, 'r') as f:
-        old_data = json.load(f)
-    with open(test_new, 'r') as f:
-        new_data = json.load(f)
-
-    result = compare_extractions(old_data, new_data)
-    result_dict = comparison_to_dict(result)
-
-    # Add test metadata
-    result_dict['test_mode'] = True
-    result_dict['test_description'] = 'Synthetic test data showing taxiway and runway changes (using BOS diagrams)'
-    result_dict['old_cycle'] = '2601_TEST'
-    result_dict['new_cycle'] = current_cycle
-    result_dict['airport_code'] = 'BOS'
-
-    return jsonify(result_dict)
-
-
 # =============================================================================
 # File Serving
 # =============================================================================
@@ -397,13 +333,11 @@ def serve_static(filename):
 def get_airport_name(code):
     """Get full airport name from code."""
     names = {
-        'BOS': 'Boston Logan International',
-        'ORD': "O'Hare International (Chicago)",
-        'LAX': 'Los Angeles International',
-        'ATL': 'Hartsfield-Jackson Atlanta',
-        'DFW': 'Dallas/Fort Worth International',
-        'SFO': 'San Francisco International',
-        'MIA': 'Miami International'
+        'JFK': 'John F. Kennedy International',
+        'LGA': 'LaGuardia',
+        'EWR': 'Newark Liberty International',
+        'SWF': 'Stewart International',
+        'TEB': 'Teterboro'
     }
     return names.get(code, code)
 

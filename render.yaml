@@ -1,10 +1,13 @@
 # Render.com deployment configuration
 # https://render.com/docs/blueprint-spec
+#
+# PANYNJ (Port Authority of NY/NJ) Airports Version
+# Airports: JFK, LGA, EWR, SWF, TEB
 
 services:
   # Main web application
   - type: web
-    name: airport-tracker-hubs
+    name: airport-tracker-panynj
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn --chdir backend app:app --bind 0.0.0.0:$PORT
@@ -14,13 +17,13 @@ services:
       - key: DATA_DIR
         value: /tmp/data
       - key: APP_URL
-        value: https://airport-tracker-hubs.onrender.com
+        value: https://airport-tracker-panynj.onrender.com
     plan: free
 
   # Cron job to check for diagram changes each AIRAC cycle
-  # Runs daily at 10:00 UTC - will only send emails when a new cycle is detected
+  # Runs daily at 10:00 UTC - will only send emails when changes are detected
   - type: cron
-    name: airport-diagram-check
+    name: panynj-diagram-check
     runtime: python
     schedule: "0 10 * * *"  # Daily at 10:00 UTC
     buildCommand: pip install -r requirements.txt
@@ -31,7 +34,7 @@ services:
       - key: DATA_DIR
         value: /tmp/data
       - key: APP_URL
-        value: https://airport-tracker-hubs.onrender.com
+        value: https://airport-tracker-panynj.onrender.com
       # Email configuration - set these in the Render dashboard
       - key: GMAIL_ADDRESS
         sync: false
